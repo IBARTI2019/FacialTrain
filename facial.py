@@ -3,7 +3,6 @@ import shutil
 from itertools import groupby
 
 import numpy as np
-import face_recognition
 import subprocess
 from flask import Flask, request, redirect, jsonify
 from PIL import Image
@@ -11,7 +10,7 @@ from flask_cors import CORS, cross_origin
 import math
 import os
 import os.path
-from util import train, predict, insertPerson, ALLOWED_EXTENSIONS, carpeta, carpeta_standby, carpeta_fotos, personas, \
+from util import insertPerson, ALLOWED_EXTENSIONS, carpeta, carpeta_standby, carpeta_fotos, personas, \
     getEncode, formatingFile, moveToFotos, insertarasistencia, carpeta_reconocidos, carpeta_sin_rostro
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
