@@ -61,6 +61,7 @@ def getKeyDistance(obj):
 def reconocimiento(search, templete, datos):
     if (len(templete) > 0):
         predictions = verify(templete)
+        print(predictions)
         if len(predictions) > 0:
             predictions.sort(key=getKeyDistance)
             doc_id = predictions[0]["doc"]
@@ -227,12 +228,12 @@ def listImage():
 
 def verify(encode):
     model_name = "DeepFace"; distance_metric = "euclidean_l2"
-    threshold = functions.findThreshold(model_name, distance_metric)
+    #threshold = functions.findThreshold(model_name, distance_metric)
     prueba = []
     try:
         for i, template in enumerate(personas['templates']):
             distance = dst.findEuclideanDistance(dst.l2_normalize(template), dst.l2_normalize(encode))
-            if distance <= threshold:
+            if distance <= 0.60:
                 prueba.append({"doc": personas['doc_ids'][i], "distance": distance})
     except e:
         print(e)
