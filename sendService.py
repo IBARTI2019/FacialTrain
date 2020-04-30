@@ -11,8 +11,9 @@ from PIL import Image
 import math
 import os
 import os.path
-from util import insertPerson, ALLOWED_EXTENSIONS, carpeta,carpeta_agregar, carpeta_standby, carpeta_fotos, personas, formatingFile, moveToFotos, insertarasistencia, carpeta_reconocidos, carpeta_sin_rostro,formatingSaveFile,setHistory
-
+from util import insertPerson, ALLOWED_EXTENSIONS, carpeta,carpeta_agregar, carpeta_standby, \
+    carpeta_fotos, personas, formatingFile, moveToFotos, insertarasistencia, carpeta_reconocidos, \
+    carpeta_sin_rostro, formatingSaveFile, setHistory, cambiarBandera, leerBandera
 def searchPersons():
     retornar = {
         "templates": [],
@@ -29,7 +30,7 @@ def searchPersons():
     return (retornar)
 
 print("Cargando")
-personas = searchPersons()
+_personas = searchPersons()
 ti = time.time()
 model = FbDeepFace.loadModel()
 input_shape = model.layers[0].input_shape[1:3]
@@ -207,6 +208,12 @@ def listImageSave():
 def listImage():
     while(True):
         # print("Service Reconocer Activo")
+        band = leerBandera()
+        if band:
+            print('BANDERA')
+            _personas = searchPersons()
+            cambiarBandera('F')
+
         new = glob(carpeta+"/*.jpg")
         if(len(new)>0):
             print("Empieza Lote")
@@ -220,7 +227,7 @@ def listImage():
                     print("Comienza Reconocimiento")
                     encode = getEncodeImage(images)
                     print(encode)
-                    reconocimiento(personas, encode, datos)
+                    reconocimiento(_personas, encode, datos)
                     tEF = time.time()
                     print("Tiempo Reconocimiento"+str(tEF-tEI))
                 lEF = time.time()

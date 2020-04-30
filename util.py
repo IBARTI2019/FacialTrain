@@ -31,6 +31,17 @@ person_history = database["activity_history"]
 categorias = database["category"]
 estatus = database["conditions"]
 
+def leerBandera():
+    archivo = open('band.txt', 'r')
+    band = archivo.read(1)
+    archivo.close()
+    return str(band) == 'T'
+
+def cambiarBandera(val):
+    archivo = open('band.txt', 'w')
+    archivo.write(val)
+    archivo.close()
+    
 def run_query_ibarti(query='', args=''):
     data = []
     if query:
@@ -78,7 +89,7 @@ def insertPerson(image, cedula, category, status, client):
             "created_date": datetime.datetime.now()
         }
         persona = personas.insert_one(persona)
-
+    cambiarBandera('T')
     return persona, len(_persona[0]['template_recognition']) if _persona else 1
 
 def setHistory(data, status):
