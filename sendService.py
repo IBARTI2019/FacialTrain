@@ -232,8 +232,9 @@ def verify(encode):
     prueba = []
     try:
         for i, template in enumerate(personas['templates']):
-            distance = dst.findEuclideanDistance(dst.l2_normalize(template), dst.l2_normalize(encode))
-            if distance <= 0.60:
+            #distance = dst.findEuclideanDistance(dst.l2_normalize(template), dst.l2_normalize(encode))
+            distance = dst.findCosineDistance(template, encode)
+            if distance <= 0.23:
                 prueba.append({"doc": personas['doc_ids'][i], "distance": distance})
     except e:
         print(e)
