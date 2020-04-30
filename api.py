@@ -59,19 +59,24 @@ def searchPersons():
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def insert():
     data = request.json
-    encoding = getEncode(carpeta_standby+data['cliente']+'/'+data['foto'])
-    print('ENC: ', encoding)
-    resp, template_recognition_lentgh = insertPerson(
-        encoding,
-        data['cedula'],
-        data['category'],
-        data['status'],
-        data['cliente']
-    )
-    ruta_foto = carpeta_standby+data['cliente']+'/'+data['foto']
-    new_nombre = ruta_foto.replace('.jpg', '-'+str(template_recognition_lentgh-1)+'.jpg')
-    os.rename(ruta_foto, new_nombre)
-    moveToFotos(new_nombre, data['cedula'])
+#    print(data['foto'])
+#    print(carpeta_standby+data['cliente']+'/'+data['foto'])
+#    print(str(data['cedula'])+"+"+str(data['category'])+"+"+str(data['status'])+"+"+ str(data['cliente'])+".jpg")
+    print(str(moveToSaveFotos(carpeta_standby+data['cliente']+'/'+data['foto']
+    ,str(data['cedula'])+"+"+str(data['category'])+"+"+str(data['status'])+"+"+ str(data['cliente'])+".jpg")))
+    # encoding = getEncode(carpeta_standby+data['cliente']+'/'+data['foto'])
+    # print('ENC: ', encoding)
+    # resp, template_recognition_lentgh = insertPerson(
+    #     encoding,
+    #     data['cedula'],
+    #     data['category'],
+    #     data['status'],
+    #     data['cliente']
+    # )
+    # ruta_foto = carpeta_standby+data['cliente']+'/'+data['foto']
+    # new_nombre = ruta_foto.replace('.jpg', '-'+str(template_recognition_lentgh-1)+'.jpg')
+    # os.rename(ruta_foto, new_nombre)
+    # moveToFotos(new_nombre, data['cedula'])
     return data
 
 @app.route('/category/', methods=['GET', 'POST'])

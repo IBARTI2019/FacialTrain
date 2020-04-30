@@ -238,10 +238,11 @@ def verify(encode):
     #threshold = functions.findThreshold(model_name, distance_metric)
     prueba = []
     try:
-        for i, template in enumerate(_personas['templates']):
-            distance = dst.findEuclideanDistance(dst.l2_normalize(template), dst.l2_normalize(encode))
-            if distance <= 0.60:
-                prueba.append({"doc": _personas['doc_ids'][i], "distance": distance})
+        for i, template in enumerate(personas['templates']):
+            #distance = dst.findEuclideanDistance(dst.l2_normalize(template), dst.l2_normalize(encode))
+            distance = dst.findCosineDistance(template, encode)
+            if distance <= 0.23:
+                prueba.append({"doc": personas['doc_ids'][i], "distance": distance})
     except e:
         print(e)
         pass
