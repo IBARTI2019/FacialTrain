@@ -20,6 +20,7 @@ carpeta_standby='./standby/'
 carpeta_reconocidos='./reconocidos/'
 carpeta_sin_rostro='./sin_rostro/'
 carpeta_fotos='./fotos/'
+carpeta_agregar='./save/'
 ALLOWED_EXTENSIONS = {'jpg'}
 
 # Conexion Database MONGODB
@@ -80,16 +81,11 @@ def insertPerson(image, cedula, category, status, client):
 
     return persona, len(_persona[0]['template_recognition']) if _persona else 1
 
-def setHistory(data, metodo):
+def setHistory(data, status):
     try:
         # print('setHistory', data, metodo)
-        if (metodo == 1):
-            data["status"] = ObjectId("5dc4657cbf29c8d71fab3fce")
-            data["create_date"] = str(datetime.datetime.now())
-        elif (metodo == 2):
-            data["status"] = ObjectId("5dcea3be058a6c5519c476d8")
-            data["create_date"] = str(datetime.datetime.now())
-
+        data["status"] = ObjectId(status)
+        data["create_date"] = str(datetime.datetime.now())
         if(data["status"] and data["activity"]):
             if(estatus.find({"_id": data["status"]}).count() > 0):
                 return person_history.insert(data)
@@ -141,15 +137,50 @@ def formatingFile(filename):
     else:
         return False
 
+
+def formatingSaveFile(filename):
+    partes = filename.split('/')[-1].split('\\')[-1].split('.')
+    if len(partes) > 1:
+        partes = partes[0].split('+')
+        if len(partes) >= 4:
+            propiedades = {}
+            propiedades['cedula'] = partes[0]
+            propiedades['category'] = partes[1]
+            propiedades['status'] = partes[2]
+            propiedades['cliente'] = partes[3]
+            return propiedades
+        else:
+            return False
+    else:
+        return False
+
+
+def moveToSaveFotos(filename, newName):
+    ruta = carpeta_agregar+'/'+newName
+    try:
+        os.stat(carpeta_agregar)
+    except:
+        os.mkdir(carpeta_agregar)
+    try:
+        fileName = filename.split('/')[-1]
+        shutil.move(filename, ruta)
+    except:
+        return False
+    return ruta
+
+
 def moveToFotos(filename, cedula):
     ruta = carpeta_fotos+cedula+'/'
+    try:
+        os.stat(carpeta_fotos)
+    except:
+        os.mkdir(carpeta_fotos)
     try:
         fileName = filename.split('/')[-1]
         try:
           os.stat(ruta)
         except:
           os.mkdir(ruta)
-
         shutil.move(filename, ruta)
     except:
         return False
