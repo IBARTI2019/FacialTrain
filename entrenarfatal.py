@@ -1,5 +1,5 @@
 from datetime import datetime
-from util import carpeta_fotos, ObjectId
+from util import carpeta_fotos, ObjectId, cambiarBandera
 import pymongo
 import os
 from deepface.basemodels import FbDeepFace
@@ -63,4 +63,4 @@ for modelo in modelos:
         else:
             print('Sin Rostro: ', carpeta_fotos+modelo+'/'+foto)
 
-
+cambiarBandera('T')
