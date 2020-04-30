@@ -11,7 +11,9 @@ from PIL import Image
 import math
 import os
 import os.path
-from util import insertPerson, ALLOWED_EXTENSIONS, carpeta,carpeta_agregar, carpeta_standby, carpeta_fotos, personas, formatingFile, moveToFotos, insertarasistencia, carpeta_reconocidos, carpeta_sin_rostro,formatingSaveFile,setHistory
+from util import insertPerson, ALLOWED_EXTENSIONS, carpeta,carpeta_agregar, carpeta_standby, \
+    carpeta_fotos, personas, formatingFile, moveToFotos, insertarasistencia, carpeta_reconocidos, \
+    carpeta_sin_rostro, formatingSaveFile, setHistory, cambiarBandera, leerBandera
 
 def searchPersons():
     retornar = {
@@ -29,31 +31,12 @@ def searchPersons():
     return (retornar)
 
 print("Cargando")
-personas = searchPersons()
+_personas = searchPersons()
 ti = time.time()
 model = FbDeepFace.loadModel()
 input_shape = model.layers[0].input_shape[1:3]
 tf = time.time()
 print("Cargado: "+str(tf-ti))
-
-# linkProcess = 'images/procesando'
-
-def imagenRecognition(imgD):
-    new_nombre = imgD.replace('.jpg', '+P.jpg')
-    os.rename(imgD, new_nombre)
-    imgD = new_nombre
-    datos = formatingFile(imgD)
-    result = None
-    if datos:
-        datos['url'] = imgD
-        template = getImageEncode(imgD)
-        if len(personas['doc_ids']) > 0:
-            result = reconocimiento(personas, template, datos)
-        else:
-            datos['url'] = moveStandBy(datos['url'], datos['cliente'])
-            print('movido a standby No Ids', datos['url'], datos['cliente'])
-            result = {'descripcion': 'movido a standby No Ids', 'url': datos['url'], 'cliente': datos['cliente']}
-    return result
 
 def getKeyDistance(obj):
     return obj['distance']
@@ -207,6 +190,11 @@ def listImageSave():
 def listImage():
     while(True):
         # print("Service Reconocer Activo")
+        #band = leerBandera()
+        #if band:
+        #    _personas = searchPersons()
+        #    cambiarBandera('F')
+
         new = glob(carpeta+"/*.jpg")
         if(len(new)>0):
             print("Empieza Lote")
@@ -220,7 +208,7 @@ def listImage():
                     print("Comienza Reconocimiento")
                     encode = getEncodeImage(images)
                     print(encode)
-                    reconocimiento(personas, encode, datos)
+                    reconocimiento(_personas, encode, datos)
                     tEF = time.time()
                     print("Tiempo Reconocimiento"+str(tEF-tEI))
                 lEF = time.time()
@@ -231,12 +219,12 @@ def verify(encode):
     #threshold = functions.findThreshold(model_name, distance_metric)
     prueba = []
     try:
-        for i, template in enumerate(personas['templates']):
-            distance = dst.findEuclideanDistance(dst.l2_normalize(template), dst.l2_normalize(encode))
-            if distance <= 0.60:
-                prueba.append({"doc": personas['doc_ids'][i], "distance": distance})
-    except e:
-        print(e)
+        for i, template in enumerate(_personas['templates']):
+            #distance = dst.findEuclideanDistance(dst.l2_normalize(template), dst.l2_normalize(encode))
+            distance = dst.findCosineDistance(template, encode)
+            if distance <= 0.23:
+                prueba.append({"doc": _personas['doc_ids'][i], "distance": distance})
+    except:
         pass
     return prueba
 
