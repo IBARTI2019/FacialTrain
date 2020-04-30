@@ -4,8 +4,6 @@ import json
 import subprocess,shutil,os,threading
 from deepface.basemodels import FbDeepFace
 from deepface.commons import functions, distance as dst
-import threading
-import shutil
 from itertools import groupby
 import requests
 import numpy as np
@@ -13,7 +11,7 @@ from PIL import Image
 import math
 import os
 import os.path
-from util import insertPerson, ALLOWED_EXTENSIONS, carpeta, carpeta_standby, carpeta_fotos, personas, formatingFile, moveToFotos, insertarasistencia, carpeta_reconocidos, carpeta_sin_rostro
+from util import insertPerson, ALLOWED_EXTENSIONS, carpeta,carpeta_agregar, carpeta_standby, carpeta_fotos, personas, formatingFile, moveToFotos, insertarasistencia, carpeta_reconocidos, carpeta_sin_rostro,formatingSaveFile,setHistory
 
 def searchPersons():
     retornar = {
@@ -68,6 +66,12 @@ def reconocimiento(search, templete, datos):
             doc_id = predictions[0]["doc"]
             distance = predictions[0]["distance"]
             datos['url'] = moveToReconocidos(datos['url'], datos['cliente'])
+            datos['activity'] = "Reconocido"
+            datos['json'] = {
+                'descripcion': 'reconocido', 'url': datos['url'], 'cliente': datos['cliente'],
+                'distance': distance, 'doc_id': doc_id
+            }
+            setHistory(datos,'5ea9e6663258742a999dda02')
             print('Reconocido', datos['url'], doc_id, distance)
             return {
                 'descripcion': 'reconocido', 'url': datos['url'], 'cliente': datos['cliente'],
@@ -75,6 +79,11 @@ def reconocimiento(search, templete, datos):
             }
         else:
             datos['url'] = moveStandBy(datos['url'], datos['cliente'])
+            datos['json'] = {
+                'descripcion': 'movido a standby', 'url': datos['url'], 'cliente': datos['cliente']
+            }
+            datos['activity'] = "Movido a Standby"
+            setHistory(datos,'5ea9e6663258742a999dda02')
             print('Standby', datos['url'], datos['cliente'])
             return {
                 'descripcion': 'movido a standby', 'url': datos['url'], 'cliente': datos['cliente']
@@ -164,29 +173,57 @@ def getEncodeImage(urlImg):
     try:
         img_face = functions.detectFace(urlImg, input_shape)
         img_representation = model.predict(img_face)[0, :]
+        print(img_representation)
     except:
         pass
     return img_representation
 
+def listImageSave():
+     while(True):
+        # print("Service Agregar Activo")
+        try:
+            os.stat(carpeta_agregar)
+        except:
+            os.mkdir(carpeta_agregar)
+        new = glob(carpeta_agregar+"/*.jpg")
+        if(len(new)>0):
+            for saveF in new:
+                datos = formatingSaveFile(saveF)
+                if(datos):
+                    encoding = getEncodeImage(saveF)
+                    resp, template_recognition_lentgh = insertPerson(
+                    encoding,
+                    datos['cedula'],
+                    datos['category'],
+                    datos['status'],
+                    datos['cliente']
+                    )
+                    new_nombre = saveF.replace('.jpg', '-'+str(template_recognition_lentgh-1)+'.jpg')
+                    os.rename(saveF, new_nombre)
+                    moveToFotos(new_nombre, datos['cedula'])
+                    print("Guardada correctamente")
+
 def listImage():
-    new = glob(carpeta+"/*.jpg")
-    if(len(new)>0):
-        print("Empieza Lote")
-        lEI = time.time()
-        for images in new:
-            tEI = time.time()
-            datos = formatingFile(images)
-            print('DATOS: ', datos)
-            if datos:
-                imageName = images.split('/')[-1]
-                print("Comienza Reconocimiento")
-                encode = getEncodeImage(images)
-                reconocimiento(personas, encode, datos)
-                tEF = time.time()
-                print("Tiempo Reconocimiento"+str(tEF-tEI))
-            lEF = time.time()
-        print("Termina Lote"+str(lEF-lEI))
-    return 0
+    while(True):
+        # print("Service Reconocer Activo")
+        new = glob(carpeta+"/*.jpg")
+        if(len(new)>0):
+            print("Empieza Lote")
+            lEI = time.time()
+            for images in new:
+                tEI = time.time()
+                datos = formatingFile(images)
+                print('DATOS: ', datos)
+                if datos:
+                    imageName = images.split('/')[-1]
+                    print("Comienza Reconocimiento")
+                    encode = getEncodeImage(images)
+                    print(encode)
+                    reconocimiento(personas, encode, datos)
+                    tEF = time.time()
+                    print("Tiempo Reconocimiento"+str(tEF-tEI))
+                lEF = time.time()
+            print("Termina Lote"+str(lEF-lEI))
 
 def verify(encode):
     model_name = "DeepFace"; distance_metric = "euclidean_l2"
@@ -203,13 +240,11 @@ def verify(encode):
     return prueba
 
 def main():
-    # url = "https://github.com/marcovega/colombia-json/blob/master/colombia.json" 
-    # # post_fields = {'fullname': "Sebastian Ramos 1", "email": "kuro1@gmail.com", "password": "lalala1"}   
-
-    # response = requests.get(url)
-    while(True):
-        listImage()
-    print("listo")
+    listImage()
+    # serviceRecog=threading.Thread(target=listImage)
+    # serviceSave=threading.Thread(target=listImageSave)
+    # serviceRecog.start()
+    # serviceSave.start()
 
 if __name__ == "__main__":
     main()

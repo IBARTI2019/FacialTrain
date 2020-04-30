@@ -6,8 +6,8 @@ import datetime
 import math
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS, cross_origin
-from util import train, insertPerson, ALLOWED_EXTENSIONS, carpeta_standby, carpeta_fotos, personas, categorias, estatus, \
-    formatingFile, moveToFotos, consultarasistencia, getEncode
+from util import  insertPerson, ALLOWED_EXTENSIONS, carpeta_standby, carpeta_fotos, personas, categorias, estatus, \
+    formatingFile, moveToFotos, consultarasistencia, getEncode,moveToSaveFotos
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -249,4 +249,4 @@ if __name__ == "__main__":
 
     mi_puerto = int(configuracion[0])
     mi_server = configuracion[1]
-    app.run(host='192.168.33.77', port=mi_puerto, debug=True)
+    app.run(host='192.168.33.72', port=mi_puerto, debug=False)
