@@ -18,7 +18,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__)
 cors = CORS(app, resources={r"/": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
-servidor='192.168.33.74'
+servidor='192.168.33.72'
 servidorlocal=servidor
 codigoequipo=6666
 lineacomando='curl -F "file=@1.jpg" http://192.168.33.74:5001'
@@ -72,4 +72,4 @@ if __name__ == "__main__":
     mi_server = configuracion[1]
     codigoimagenl = configuracion[2]
 
-    app.run(host='192.168.33.77', port=mi_puerto, debug=False)
+    app.run(host='192.168.33.72', port=mi_puerto, debug=False)
